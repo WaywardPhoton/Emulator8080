@@ -2,11 +2,9 @@
 #include <stdint.h>
 #include "helpers.h"
 struct State{
-    
+    State();
     void reset();
-
-    struct{  
-
+    
     Register16 BC;
     Register16 DE;
     Register16 HL;
@@ -18,13 +16,17 @@ struct State{
     uint8_t E;
     uint8_t H;
     uint8_t L;
-    uint16_t PC; // program counter 
-    uint16_t SP; //stack pointer
-
-// not implemented: add option to join BC, DE, HL into 16 bit registers
+    uint16_t pc; // program counter 
+    uint16_t sp; //stack pointer
+    uint8_t memory[0xFFFF]; 
 
     ConditionCodes cc ;
-    };
+    bool InterruptEnabled; 
 
 };
 
+typedef enum AddressingMode{
+    REG  = 0,
+    IMM = 1,
+    ADDR   = 2
+} AddressingMode;
