@@ -1,3 +1,3 @@
 #include "State.h"
 
-void ADD(State* state, unsigned char *instruction, enum AddressingMode, bool cy); //adds two things together
+void ADD_A (State* state, unsigned char *instruction, uint8_t *dest, AddressingMode mode, bool carrybool);
