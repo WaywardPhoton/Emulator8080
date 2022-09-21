@@ -23,8 +23,21 @@ void State::reset(){
 
 };
 
-uint16_t State::update_reg(uint8_t* regA, uint8_t* regB) {
+uint16_t State::read_reg(uint8_t* regA, uint8_t* regB) {
 
 	uint16_t value = (*regA <<8) | (*regB) ; 
+	return value;
+}
+
+
+uint8_t State::write_reg_A(uint16_t* regAB) {
+
+	uint8_t value = (*regAB  & 0xFF00) >> 8; 
+	return value;
+}
+
+uint8_t State::write_reg_B(uint16_t* regAB) {
+
+	uint8_t value = (*regAB  & 0xFF) ; 
 	return value;
 }

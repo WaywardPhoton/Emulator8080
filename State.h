@@ -4,7 +4,9 @@
 struct State{
     State();
     void reset();
-    uint16_t update_reg(uint8_t* regA, uint8_t* regB);
+    uint16_t read_reg(uint8_t* regA, uint8_t* regB);
+    uint8_t write_reg_A(uint16_t* regAB);
+    uint8_t write_reg_B(uint16_t* regAB);
     
     // Register16 BC;
     // Register16 DE;
@@ -34,17 +36,6 @@ typedef enum AddressingMode{
 } AddressingMode;
 
 typedef enum RegisterChoice{
-    A = 0,
-    B = 1,
-    C = 2,
-    D = 3,
-    E = 4,
-    H = 5,
-    L = 6,
-    BC = 7,
-    DE = 8,
-    HL = 9,
-    SP = 10
-
-
+    BYTE = 8,
+    WORD = 16,
 }RegisterChoice; 
