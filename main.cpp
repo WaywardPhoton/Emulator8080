@@ -24,15 +24,16 @@ printf("%d\n", ptr_state->H);
 // char *prt = a ; 
 // printf("%c\n", *(prt+1));
 
-int a = 16;
-int *pointer;
-pointer = &a;  
-printf("%d\n", pointer);
-printf("%d\n", &a);
+// int a = 16;
+// int *pointer;
+// pointer = &a;  
+// printf("%d\n", pointer);
+// printf("%d\n", &a);
 
 
-uint16_t test = 0xFFAA;
-uint16_t test2 = test & 0xFF;
+uint16_t test = 0x0F;
+bool test2 = ParityCheck(test);
+printf("%x\n", test2);
 
 
 state.H = 0x01;
