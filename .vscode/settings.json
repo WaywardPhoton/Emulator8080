@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "compare": "cpp"
+        "compare": "cpp",
+        "*.tcc": "cpp",
+        "exception": "cpp",
+        "istream": "cpp",
+        "new": "cpp",
+        "streambuf": "cpp",
+        "typeinfo": "cpp"
     }
 }

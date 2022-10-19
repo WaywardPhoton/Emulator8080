@@ -13,16 +13,18 @@ State *ptr_state = &state ;
 printf("%d\n", ptr_state->H);
 
 ptr_state->H = (uint8_t) 4;
+ptr_state->cc.all = (uint8_t) 1;
+
 
 uint8_t vals = (++ptr_state->H); 
 
 uint16_t value = ptr_state->read_reg(&ptr_state->H , &ptr_state->L); 
 
-printf("%d\n", ptr_state->H); 
+printf("%d\n", ptr_state->cc.z); 
 
-// char a[]= "stri" ;
-// char *prt = a ; 
-// printf("%c\n", *(prt+1));
+char a[]= "stri" ;
+char *prt = a ; 
+printf("%c\n", *(prt+1));
 
 // int a = 16;
 // int *pointer;
