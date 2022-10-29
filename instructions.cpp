@@ -52,7 +52,6 @@ void SUB_A (State* state, uint8_t *dest, AddressingMode mode, bool carrybool){
     
 }
 
-
 void INX (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2, RegisterChoice choice){ //increments each register separately
     uint16_t intermediate;
     switch (choice)
@@ -62,10 +61,6 @@ void INX (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2, 
             intermediate ++;
             *register_choice_1 = state->write_reg_A(&intermediate);
             *register_choice_2= state->write_reg_B(&intermediate);
-            // *register_choice_2++;
-		    // if (*register_choice_2 == 0){
-			//     *register_choice_1++;
-            // }
             break;
 
         case WORD:
@@ -77,7 +72,6 @@ void INX (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2, 
 
 }
 
-
 void DCX (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2, RegisterChoice choice){ //increments each register separately
     uint16_t intermediate;
     switch (choice)
@@ -87,10 +81,6 @@ void DCX (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2, 
             intermediate --;
             *register_choice_1 = state->write_reg_A(&intermediate);
             *register_choice_2= state->write_reg_B(&intermediate);
-        // if (*register_choice_2 == 0){
-		// 	    *register_choice_2= 0xFF;
-        //         *register_choice_1--;
-        //     }
             break;
 
         case WORD:
@@ -101,7 +91,6 @@ void DCX (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2, 
     }
 
 }
-
 
 void INR (State* state, uint8_t *register_choice, RegisterChoice choice){
     uint16_t answer; 
@@ -144,9 +133,22 @@ void DAD(State* state, uint8_t *regA, uint8_t *regB ){
     uint16_t HL = state->read_reg(&state-> H, &state-> L); //convert to 32 bits so that 16 bit register addition saves the carry
     uint16_t reg16 = state->read_reg(regA, regB);
     uint32_t answer = (uint32_t) HL + (uint32_t) reg16;
+    state->H = state->write_reg_A((uint16_t*) &answer);
+    state->L = state->write_reg_B((uint16_t*) &answer);
+    state->cc.set_word_cy(answer);
+}
+
+void DAD_SP(State* state){
+
+    uint16_t HL = state->read_reg(&state-> H, &state-> L); //convert to 32 bits so that 16 bit register addition saves the carry
+    uint32_t answer = (uint32_t) HL + (uint32_t) state->sp;
+    state->H = state->write_reg_A((uint16_t*) &answer);
+    state->L = state->write_reg_B((uint16_t*) &answer);
+    state->cc.set_word_cy(answer);
 
     state->cc.set_word_cy(answer);
 }
+
 
 
 // ---------------------------------------------
@@ -714,7 +716,7 @@ void MOV(State* state, uint8_t *register_choice_1, uint8_t *operand_2, Addressin
 
         state->pc++;
 
-    case ADDR:  uint16_t address = state->read_reg(&state-> H, &state-> L)
+    case ADDR:  uint16_t address = state->read_reg(&state-> H, &state-> L);
 			    state->memory[address]= *register_choice_1;  // state-> C, for example. 
         break;
     }
@@ -739,14 +741,14 @@ void LDAX(State* state,uint8_t *register_choice_1, uint8_t *register_choice_2){
 void STA(State* state, unsigned char *instruction){
 
     uint16_t addr = (instruction[2] << 8) | instruction[1];
-    state->memory[address]= state->A;
+    state->memory[addr]= state->A;
     state->pc += 2;
 
 }
 
 void LDA(State* state, unsigned char *instruction){
     uint16_t addr = (instruction[2] << 8) | instruction[1];
-    state->A = state->memory[address];
+    state->A = state->memory[addr];
     state->pc += 2;
 }
 
@@ -766,18 +768,19 @@ void LXI (State* state, uint8_t *register_choice_1, uint8_t *register_choice_2,R
         case WORD:  //LXI SP
             uint8_t hi = state->memory[state->pc + 2];
             uint8_t low = state->memory[state->pc + 1];
-            uint16_t addr = (hi << 8) | low[1];
+            uint16_t addr = (hi << 8) | low;
             state->sp = addr; // increment stack pointer is only option in WORD case
             break;
 
     state->pc+=2;
 
     }
+}
 
 void SHLD(State* state){
     uint8_t hi = state->memory[state->pc + 2];
     uint8_t low = state->memory[state->pc + 1];
-    uint16_t addr = (hi << 8) | low[1];
+    uint16_t addr = (hi << 8) | low;
     state->memory[addr]= state->read_reg(&state-> H, &state-> L);
     state->pc += 2;
 }
@@ -787,8 +790,7 @@ void LHLD(State* state){
     uint8_t hi = state->memory[state->pc + 2];
     uint8_t low = state->memory[state->pc + 1];
     state->H= state->memory[hi];
-    state->L= state-<memory[low];
-    state->memory[addr]= state->read_reg(&state-> H, &state-> L);
+    state->L= state->memory[low];
     state->pc += 2;
 
 

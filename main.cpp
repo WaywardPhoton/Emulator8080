@@ -44,5 +44,15 @@ uint16_t value_return;
 value_return = state.read_reg(&state.H, &state.L);
 printf("%x\n", value_return );
 
+State theState;
+theState.A = 0xFF;
+theState.B = 0xFA;
+theState.cc.cy = 1; 
+
+printf("%x\n", (uint8_t) (0xFF + 0xFA +1 ));
+ADD_A(&theState, &theState.B, REG, true);
+printf("%x\n", theState.A);
+
+
 return 0; 
 };   

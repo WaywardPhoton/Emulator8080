@@ -3,6 +3,7 @@
 #include "helpers.h"
 struct State{
     State();
+    
     void reset();
     uint16_t read_reg(uint8_t* regA, uint8_t* regB);
     uint8_t write_reg_A(uint16_t* regAB);
