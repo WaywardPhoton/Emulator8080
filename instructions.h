@@ -15,3 +15,7 @@ void DCR (State* state, uint8_t *register_choice, RegisterChoice choice);
 void DAD(State* state, uint8_t *regA, uint8_t *regB );
 
 void DAD_SP(State* state);
+
+void JNZ (State* state);
+
+void JZ (State* state);

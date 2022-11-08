@@ -154,9 +154,10 @@ void DAD_SP(State* state){
 // ---------------------------------------------
 // ARITHMETIC GROUP
 // ---------------------------------------------
-void JNZ (State* state, unsigned char *instruction){
+void JNZ (State* state){
     if ((state->cc.z) == 0) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -166,9 +167,10 @@ void JNZ (State* state, unsigned char *instruction){
 
 }
 
-void JZ (State* state, unsigned char *instruction){
+void JZ (State* state){
     if ((state->cc.z) != 0) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -178,17 +180,17 @@ void JZ (State* state, unsigned char *instruction){
 
 }
 
+void JMP (State* state){
 
-void JMP (State* state, unsigned char *instruction){
-
-    state->pc = (instruction[2] << 8) | instruction[1];
-
+    uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+    state->pc = address;
+    
 }
 
-
-void JPO (State* state, unsigned char *instruction){
+void JPO (State* state){
     if ((state->cc.p) == 0) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -198,10 +200,10 @@ void JPO (State* state, unsigned char *instruction){
 
 }
 
-
-void JPE (State* state, unsigned char *instruction){
+void JPE (State* state){
     if ((state->cc.p) == 1) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -211,9 +213,10 @@ void JPE (State* state, unsigned char *instruction){
 
 }
 
-void JNC (State* state, unsigned char *instruction){
+void JNC (State* state){
     if ((state->cc.cy) == 0) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -224,10 +227,11 @@ void JNC (State* state, unsigned char *instruction){
 
 }
 
-
-void JC (State* state, unsigned char *instruction){
+void JC (State* state){
     if ((state->cc.cy) == 1) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -238,9 +242,10 @@ void JC (State* state, unsigned char *instruction){
 
 }
 
-void JP (State* state, unsigned char *instruction){
+void JP (State* state){
     if ((state->cc.s) == 0) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {
@@ -251,10 +256,10 @@ void JP (State* state, unsigned char *instruction){
 
 }
 
-
-void JM (State* state, unsigned char *instruction){
+void JM (State* state){
     if ((state->cc.s) == 1) {
-        state->pc = (instruction[2] << 8) | instruction[1];
+        uint16_t address = (state->memory[state->pc + 2] << 8) |(state->memory[state->pc + 1]);
+        state->pc = address;
         }
 
     else {

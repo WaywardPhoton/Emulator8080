@@ -224,6 +224,35 @@ START_TEST(dad_sp)
 }
 END_TEST
 
+START_TEST(jnz)
+{
+    State theState;
+    theState.memory[0]= 0x10;
+    theState.memory[1]= 0x20;
+    theState.memory[2]= 0xAF;
+    theState.pc = 0x00;
+    JNZ(&theState);
+    ck_assert_int_eq(theState.pc,  0xAF20);
+
+}
+END_TEST
+
+START_TEST(jz)
+{
+    State theState;
+    theState.cc.z = 1;
+    theState.memory[0]= 0x10;
+    theState.memory[1]= 0x20;
+    theState.memory[2]= 0xAF;
+    theState.pc = 0x00;
+    JZ(&theState);
+    ck_assert_int_eq(theState.pc,  0xAF20);
+
+}
+END_TEST
+
+
+
 Suite *instruction_suite(void)
 {
     Suite *s;
@@ -234,6 +263,7 @@ Suite *instruction_suite(void)
     TCase *tc_inr;
     TCase *tc_dcr;
     TCase *tc_dad;
+    TCase *tc_jnz;
 
 
     s = suite_create ("Instructions");
@@ -244,6 +274,7 @@ Suite *instruction_suite(void)
     tc_inr = tcase_create ("Inr");
     tc_dcr = tcase_create ("Dcr");
     tc_dad = tcase_create ("Dad");
+    tc_jnz = tcase_create ("Jnz");
 
     tcase_add_test (tc_add, add_reg_test);
     tcase_add_test (tc_add, add_imm_test);
@@ -265,6 +296,7 @@ Suite *instruction_suite(void)
 
     tcase_add_test (tc_dad, dad);
     tcase_add_test (tc_dad, dad_sp);
+    tcase_add_test (tc_jnz, jz);
 
 
 
@@ -275,6 +307,7 @@ Suite *instruction_suite(void)
     suite_add_tcase (s, tc_inr);
     suite_add_tcase (s, tc_dcr);
     suite_add_tcase (s, tc_dad);
+    suite_add_tcase (s, tc_jnz);
     
     return s;
 }
