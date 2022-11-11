@@ -1,8 +1,7 @@
-#include "Memory.h"
 #include <stdio.h>
 #include <string.h>
 #include <cstdlib>
-
+#include "Memory.h"
 
 Memory::Memory() {
 	}
@@ -21,17 +20,20 @@ Memory::Memory() {
 		config = inConfig;
     }
 
+	struct Memory::Config Memory::get_config(){
+		return config ;
+	}
 
 	uint16_t Memory::translate(uint16_t address) {
-		uint16_t address = address;
+		uint16_t addr = address;
 
 		if (config.isRamMirrored) {
-			while (address >= size()) {
-				address -= config.sizeRam;
+			while (addr >= size()) {
+				addr -= config.sizeRam;
 			}
 		}
 
-		return address;
+		return addr;
 	}
 
 

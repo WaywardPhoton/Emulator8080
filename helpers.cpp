@@ -17,14 +17,9 @@ bool ParityCheck(uint16_t value){
 
 return (0 == (count % 2));
 
-};
+}
 
-// Register16::Register16(uint8_t& regA, uint8_t& regB): value( (regA<<8) | (regB)) {
-// };
-
-
-// uint16_t Register16::update_reg(uint8_t& regA, uint8_t& regB) {
-// 	uint16_t value = (regA<<8) | (regB) ; 
-// 	return value;
-// }
+uint16_t create_word(uint8_t upper, uint8_t lower) {
+		return (uint16_t(upper) << 8) | uint16_t(lower);
+	}
 

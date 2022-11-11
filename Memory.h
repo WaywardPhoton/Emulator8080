@@ -1,6 +1,4 @@
-
 #include <stdint.h>
-#include "helpers.h"
 class Memory
 {
 public:
@@ -15,10 +13,9 @@ public:
         bool isRamMirrored;
 		};
 
-
     uint8_t memory[0xFFFF]; 
   
-
+    struct Memory::Config get_config();
     void configure(Config& config);
     uint16_t translate(uint16_t address);
 

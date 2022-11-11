@@ -296,7 +296,7 @@ Suite *instruction_suite(void)
 
     tcase_add_test (tc_dad, dad);
     tcase_add_test (tc_dad, dad_sp);
-    tcase_add_test (tc_jnz, jz);
+    tcase_add_test (tc_jnz, jnz);
 
 
 
