@@ -72,9 +72,48 @@ void CPU::ret (){
 
 void CPU::step(){
     num_steps+=1;
+    int opcode_size = 1;
     opcode = read_memory(state.pc);
     switch(opcode):
     {
-        
+        case 0x00: break;                         //NOP
+        case 0x01:
+        {
+            state.B = read_memory(state.pc+2);   // LXI B, D16
+            state.C = read_memory(state.pc+1);
+            opcode_size = 3;
+            break;
+        }
+        case 0x11:
+        {
+            state.D = read_memory(state.pc+2);   // LXI D, D16
+            state.E = read_memory(state.pc+1);
+            opcode_size = 3;
+            break; 
+        }
+        case 0x21:{
+            state.H = read_memory(state.pc+2);   // LXI H, D16
+            state.L = read_memory(state.pc+1);
+            opcode_size = 3;
+            break;  
+        }
+        case 0x31:
+        {
+            state.sp = read_opcode_word();    // :LXI SP, D16
+            opcode_size = 3;
+
+        }
+        case 0x02:
+        {
+            uint16_t address = state->read_reg(state.B,state.C); //STAX B
+            write_memory(address, state.A);
+        }
+        case 0x12:
+        {
+            uint16_t address = state->read_reg(state.D,state.E); //STAX D
+            write_memory(address, state.A);
+        }
+
+
     }
 }

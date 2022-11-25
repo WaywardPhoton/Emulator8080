@@ -1,6 +1,8 @@
 #include "instructions.h"
+#include "Memory.h"
 
 
+// Create global memory variable
 // ---------------------------------------------
 // ARITHMETIC GROUP
 // ---------------------------------------------
@@ -279,7 +281,7 @@ void CALL (State* state, unsigned char *instruction){
     state->pc = (instruction[2] << 8) | instruction[1];      // put 16 bit address into PC
 }
 
-void RET (State* state, unsigned char *instruction){
+void RET (State* state){
 
     uint16_t ret= state->memory[state->sp]  | (state->memory[state->sp+1]) << 8 ;  // pull address from 8 bit memory locations based on SP and SP+1
     state->pc = ret;
