@@ -26,6 +26,7 @@ private:
     void call(uint16_t input_addr, uint16_t return_addr);
     void ret ();
     int num_steps; 
+    void MOV(uint8_t *register_choice_1, uint8_t *operand_2, AddressingMode mode);
     Memory* memory_ptr;  //ptr to an instance of the memory class
     State state; 
 

@@ -148,10 +148,7 @@ void DAD_SP(State* state){
     state->L = state->write_reg_B((uint16_t*) &answer);
     state->cc.set_word_cy(answer);
 
-    state->cc.set_word_cy(answer);
 }
-
-
 
 // ---------------------------------------------
 // ARITHMETIC GROUP
@@ -724,7 +721,7 @@ void MOV(State* state, uint8_t *register_choice_1, uint8_t *operand_2, Addressin
         state->pc++;
 
     case ADDR:  uint16_t address = state->read_reg(&state-> H, &state-> L);
-			    state->memory[address]= *register_choice_1;  // state-> C, for example. 
+			    *register_choice_1 = state->memory[address] ;  // state-> C, for example. 
         break;
     }
 
@@ -796,8 +793,9 @@ void SHLD(State* state){
 void LHLD(State* state){
     uint8_t hi = state->memory[state->pc + 2];
     uint8_t low = state->memory[state->pc + 1];
-    state->H= state->memory[hi];
-    state->L= state->memory[low];
+    uint16_t addr = (hi << 8) | low;
+    state->H= state->memory[addr+1];
+    state->L= state->memory[addr];
     state->pc += 2;
 
 
