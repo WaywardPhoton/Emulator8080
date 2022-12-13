@@ -34,8 +34,8 @@ struct State{
 
 typedef enum AddressingMode{
     REG  = 0,
-    IMM = 1,
-    ADDR   = 2
+    IMM   = 1,
+    ADDR = 2
 } AddressingMode;
 
 typedef enum RegisterChoice{

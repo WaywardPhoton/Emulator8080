@@ -16,10 +16,6 @@ void ADD_A (State* state, uint8_t *dest, AddressingMode mode, bool carrybool){
     {
     case REG:  answer = (uint16_t) state->A + (uint16_t) *dest + (carrybool* state->cc.cy); 
         break;
-    
-    case IMM:  answer = (uint16_t) state->A + (uint16_t) state->memory[state->pc + 1]+ (carrybool* state->cc.cy);
-        state->pc++;
-        break;
 
     case ADDR:  answer = (uint16_t) state->A + state->memory[state->read_reg(&state-> H, &state-> L)]+ (carrybool* state->cc.cy);
         break;    
