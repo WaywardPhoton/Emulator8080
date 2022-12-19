@@ -1,5 +1,6 @@
 #include "instructions.h"
 #include "Memory.h"
+#include "CPU.h"
 #include <iostream>
 
 using namespace std; 
