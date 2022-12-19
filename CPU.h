@@ -31,6 +31,11 @@ private:
     State state; 
 
     void ADD(uint8_t *dest, AddressingMode mode, bool carrybool);
+    void SUB(uint8_t *dest, AddressingMode mode, bool carrybool);
     void MOV(uint8_t *register_choice_1, uint8_t *operand_2, AddressingMode mode);
+    void AND(uint8_t *dest, AddressingMode mode);
+    void ORR(uint8_t *dest, AddressingMode mode);
+    void XOR(uint8_t *dest, AddressingMode mode);
+    void CMP(uint8_t *dest, AddressingMode mode);
 
 };

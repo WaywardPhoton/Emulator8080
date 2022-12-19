@@ -1,5 +1,4 @@
-#include "instructions.h"
-#include "Memory.h"
+
 #include "CPU.h"  // this doesn't work
 #include <iostream>
 
@@ -46,21 +45,21 @@ int main(int argc, char* argv[])
 // value_return = state.read_reg(&state.H, &state.L);
 // printf("%x\n", value_return );
 
-State theState;
-theState.A = 0xFF;
-theState.B = 0xFA;
-theState.cc.cy = 1; 
+// State theState;
+// theState.A = 0xFF;
+// theState.B = 0xFA;
+// theState.cc.cy = 1; 
 
 // printf("%x\n", (uint8_t) (0xFF + 0xFA +1 ));
 // ADD_A(&theState, &theState.B, REG, true);
 // printf("%x\n", theState.A);
 
-Memory memory; 
+//Memory memory; 
 // Memory::Config config;
 // config.isRomWriteable = true;
 // memory.configure(config);
 // printf("%d\n", config.isRomWriteable);
-Memory::Config theConfig = memory.get_config();
-printf("%d\n", theConfig.isRamMirrored);
+//Memory::Config theConfig = memory.get_config();
+//printf("%d\n", theConfig.isRamMirrored);
 return 0; 
 };   

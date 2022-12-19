@@ -90,7 +90,6 @@ void CPU::MOV(uint8_t *register_choice_1, uint8_t *operand_2, AddressingMode mod
         }
     }
 }
-
 void CPU::ADD(uint8_t *dest, AddressingMode mode, bool carrybool){
  // ADD to A in one of three modes, option for carry: encompasses ADD, ADC, ADI 
     uint16_t answer;
@@ -115,6 +114,125 @@ void CPU::ADD(uint8_t *dest, AddressingMode mode, bool carrybool){
     state.cc.set_byte_cy(answer);  // set carry
     state.A = (uint8_t) answer ;  // convert to 8 bit again
     
+}
+void CPU::SUB(uint8_t *dest, AddressingMode mode, bool carrybool){
+ // ADD to A in one of three modes, option for carry: encompasses ADD, ADC, ADI 
+    uint16_t answer;
+    switch (mode)
+    {
+    case REG: 
+        {
+
+            answer = (uint16_t) state.A - (uint16_t) *dest - (carrybool* state.cc.cy); 
+            break;
+        }
+    
+    case ADDR:
+        {
+            uint16_t addr = state.read_reg(&state.H, &state.L);
+            answer = (uint16_t) state.A -read_memory(addr)- (carrybool* state.cc.cy);
+            break;   
+        } 
+    }
+
+    state.cc.set_zsp(answer);    // set zsp
+    state.cc.set_byte_cy(answer);  // set carry
+    state.A = (uint8_t) answer ;  // convert to 8 bit again
+    
+}
+void CPU::AND(uint8_t *dest, AddressingMode mode){                               
+    // AND with to A in one of three modes, carry is zeroes in all cases.
+    // encompasses ANA, ANI and ANA M (address) 
+
+    uint8_t answer;
+    switch (mode)
+    {
+    case REG:  {answer = state.A &  *dest ;
+        break;
+    }
+    
+
+    case ADDR:  {
+        uint16_t addr = state.read_reg(&state.H, &state.L);
+        answer = state.A & read_memory(addr);
+        break;  
+    }  
+    }
+
+    state.cc.set_zsp(answer);    // set zsp
+    state.cc.cy= 0;  // set carry
+    state.A = answer ;  // convert to 8 bit again   
+}
+void CPU::ORR(uint8_t *dest, AddressingMode mode){
+                                
+    uint8_t answer;
+    switch (mode)
+    {
+    case REG:
+    {
+        answer = state.A |  *dest ;
+        break;
+    }
+    
+    case ADDR:  
+    {
+        uint16_t addr = state.read_reg(&state.H, &state.L);
+        answer = state.A | read_memory(addr);
+        break; 
+    }  
+    } 
+
+    state.cc.set_zsp(answer);    // set zsp
+    state.cc.cy= 0;  // set carry
+    state.A = answer ;  // convert to 8 bit again  
+}
+void CPU::XOR(uint8_t *dest, AddressingMode mode){
+                                    
+    // XOR with to A in one of three modes, carry is zeroes in all cases.
+    // encompasses XRA, XRI and XRA M (address) 
+
+    uint8_t answer;
+    switch (mode)
+    {
+    case REG:  
+    {
+        answer = state.A ^  *dest ;
+        break;
+    }
+    
+        case ADDR:
+        {
+            uint16_t addr = state.read_reg(&state.H, &state.L);
+            answer = state.A ^ read_memory(addr);
+        
+        break;   
+        } 
+    }
+
+    state.cc.set_zsp(answer);    // set zsp
+    state.cc.cy= 0;  // set carry
+    state.A = answer ;  // convert to 8 bit again   
+}
+void CPU::CMP(uint8_t *dest, AddressingMode mode){                          
+    uint16_t answer;
+    switch (mode)
+    {
+    case REG:
+    {  answer = state.A -  *dest ;
+        break;
+
+    }
+    case ADDR:
+    
+        uint16_t addr = state.read_reg(&state.H, &state.L);{
+        answer = state.A - read_memory(addr);
+        break;    
+    }
+    }
+
+    state.cc.set_zsp(answer);    // set zsp
+    state.cc.set_byte_cy(answer);  // set carry
+
 }
 
 void CPU::step(){
@@ -564,6 +682,7 @@ void CPU::step(){
         {
             state.cc.cy = !state.cc.cy;
         }
+        // MOV
 
         case 0x41:      //MOV B,C
         {
@@ -590,25 +709,21 @@ void CPU::step(){
             MOV(&state.B, &state.L, REG);
             break;
         }
-
         case 0x46:      //MOV B,(HL)
         {
             MOV(&state.B, NULL, IMM);
             break;
         }
-
         case 0x47:
         {
             MOV(&state.B, &state.A, REG);
             break;
         }
-
          case 0x48:      //MOV C,B
         {
             MOV(&state.C, &state.B, REG);
             break;
         }
-
         case 0x4A:      //MOV C,D
         {
             MOV(&state.C, &state.D, REG);
@@ -624,31 +739,26 @@ void CPU::step(){
             MOV(&state.C, &state.H, REG);
             break;
         }
-
         case 0x4D:      //MOV C,L
         {
             MOV(&state.C, &state.L, REG);
             break;
         }
-
         case 0x4E:      //MOV B,(HL)
         {
             MOV(&state.C, NULL, IMM);
             break;
         }
-
         case 0x4F:
         {
             MOV(&state.C, &state.A, REG);
             break;
         }
-
-      case 0x50:      //MOV D,B
+        case 0x50:      //MOV D,B
         {
             MOV(&state.D, &state.B, REG);
             break;
         }
-
         case 0x51:      //MOV D,C
         {
             MOV(&state.D, &state.C, REG);
@@ -664,31 +774,26 @@ void CPU::step(){
             MOV(&state.D, &state.H, REG);
             break;
         }
-
         case 0x55:      //MOV D,L
         {
             MOV(&state.D, &state.L, REG);
             break;
         }
-
         case 0x56:      //MOV D,(HL)
         {
             MOV(&state.D, NULL, IMM);
             break;
         }
-
-        case 0x57:
+        case 0x57:      //MOV D,A
         {
             MOV(&state.D, &state.A, REG);
             break;
         }
-
         case 0x58:      //MOV E,B
         {
             break;
             MOV(&state.E, &state.B, REG);
         }
-
         case 0x59:      //MOV E,D
         {
             break;
@@ -704,32 +809,26 @@ void CPU::step(){
             MOV(&state.E, &state.H, REG);
             break;
         }
-
         case 0x5D:      //MOV E,L
         {
             MOV(&state.E, &state.L, REG);
             break;
         }
-
         case 0x5E:      //MOV E,(HL)
         {
             MOV(&state.E, NULL, IMM);
             break;
         }
-
-        case 0x5F:
+        case 0x5F:      //MOV E,A
         {
             MOV(&state.E, &state.A, REG);
             break;
         }
-
-
         case 0x60:      //MOV H,B
         {
             MOV(&state.H, &state.B, REG);
             break;
         }
-
         case 0x61:      //MOV H,C
         {
             MOV(&state.H, &state.C, REG);
@@ -745,32 +844,26 @@ void CPU::step(){
             MOV(&state.H, &state.E, REG);
             break;
         }
-
         case 0x65:      //MOV H,L
         {
             MOV(&state.H, &state.L, REG);
             break;
         }
-
         case 0x66:      //MOV H,(HL)
         {
             MOV(&state.H, NULL, IMM);
             break;
         }
-
         case 0x67:
         {
             MOV(&state.H, &state.A, REG);
             break;
         }
-
-
         case 0x68:      //MOV L,B
         {
             MOV(&state.L, &state.B, REG);
             break;
         }
-
         case 0x69:      //MOV L,C
         {
             MOV(&state.L, &state.C, REG);
@@ -786,73 +879,61 @@ void CPU::step(){
             MOV(&state.L, &state.E, REG);
             break;
         }
-
         case 0x6C:      //MOV L,H
         {
             MOV(&state.L, &state.H, REG);
             break;
         }
-
         case 0x6E:      //MOV L,(HL)
         {
             MOV(&state.L, NULL, IMM);
             break;
         }
-
         case 0x6F: 
         {
             MOV(&state.L, &state.A, REG);
             break;
         }
-        
         case 0x70:      // MOV (HL), B
         {
             MOV(&state.B, NULL, ADDR);
             break;
         }
-
         case 0x71:      // MOV (HL), C
         {
             MOV(&state.C, NULL, ADDR);
             break;
         }
-
         case 0x72:      // MOV (HL), D
         {
             MOV(&state.D, NULL, ADDR);
             break;
         }
-
         case 0x73:      // MOV (HL), E
         {
             MOV(&state.E, NULL, ADDR);
             break;
         }
-
         case 0x74:      // MOV (HL), H
         {
             MOV(&state.H, NULL, ADDR);
             break;
         }
-
         case 0x75:      // MOV (HL), L
         {
             MOV(&state.L, NULL, ADDR);
             break;
         }
-
         case 0x77:      // MOV (HL), A
         {
             MOV(&state.A, NULL, ADDR);
             break;
         }
-
         case 0x78:      //MOV A,B
         {
             MOV(&state.A, &state.B, REG);
             break;
         }
-
         case 0x79:      //MOV A,C
         {
             MOV(&state.A, &state.C, REG);
@@ -868,13 +949,11 @@ void CPU::step(){
             MOV(&state.A, &state.E, REG);
             break;
         }
-
         case 0x7C:      //MOV A,H
         {
             MOV(&state.A, &state.H, REG);
             break;
         }
-
         case 0x7D:      //MOV A,L
         {
             MOV(&state.A, &state.L, REG);
@@ -884,10 +963,279 @@ void CPU::step(){
         {
             MOV(&state.A, NULL, IMM);
         }
-
-        case 0x80:
+// ADD 
+        case 0x80:      //ADD B
         {
             ADD(&state.B, REG, false );
         }
+        case 0x81:      //ADD C
+        {
+            ADD(&state.C, REG, false );
+        }
+        case 0x82:      //ADD D
+        {
+            ADD(&state.D, REG, false );
+        }
+        case 0x83:      //ADD E
+        {
+            ADD(&state.E, REG, false );
+        }
+        case 0x84:      //ADD H
+        {
+            ADD(&state.H, REG, false );
+        }
+        case 0x85:      //ADD L
+        {
+            ADD(&state.L, REG, false );
+        }
+        case 0x86:      //ADD M
+        {
+            ADD(NULL, ADDR, false );
+        }
+        case 0x87:      //ADD A
+        {
+            ADD(&state.A, REG, false );
+        }
+        case 0x88:      //ADC B
+        {
+            ADD(&state.B, REG, true );
+        }
+        case 0x89:      //ADC C
+        {
+            ADD(&state.C, REG, true );
+        }
+        case 0x8A:      //ADC D
+        {
+            ADD(&state.D, REG, true );
+        }
+        case 0x8B:      //ADC E
+        {
+            ADD(&state.E, REG, true );
+        }
+        case 0x8C:      //ADC H
+        {
+            ADD(&state.H, REG, true );
+        }
+        case 0x8D:      //ADC L
+        {
+            ADD(&state.L, REG, true );
+        }
+        case 0x8E:      //ADC M
+        {
+            ADD(NULL, ADDR, true );
+        }
+        case 0x8F:      //ADC A
+        {
+            ADD(&state.A, REG, true );
+        }
+// SUB 
+
+        case 0x90:      //SUB B
+        {
+            SUB(&state.B, REG, false );
+        }
+        case 0x91:      //SUB C
+        {
+            SUB(&state.C, REG, false );
+        }
+        case 0x92:      //SUB D
+        {
+            SUB(&state.D, REG, false );
+        }
+        case 0x93:      //SUB E
+        {
+            SUB(&state.E, REG, false );
+        }
+        case 0x94:      //SUB H
+        {
+            SUB(&state.H, REG, false );
+        }
+        case 0x95:      //SUB L
+        {
+            SUB(&state.L, REG, false );
+        }
+        case 0x96:      //SUB M
+        {
+            SUB(NULL, ADDR, false );
+        }
+        case 0x97:      //SUB A
+        {
+            SUB(&state.A, REG, false );
+        }
+        case 0x98:      //SBB B
+        {
+            SUB(&state.B, REG, true );
+        }
+        case 0x99:      //SBB C
+        {
+            SUB(&state.C, REG, true );
+        }
+        case 0x9A:      //SBB D
+        {
+            SUB(&state.D, REG, true );
+        }
+        case 0x9B:      //SBB E
+        {
+            SUB(&state.E, REG, true );
+        }
+        case 0x9C:      //SBB H
+        {
+            SUB(&state.H, REG, true );
+        }
+        case 0x9D:      //SBB L
+        {
+            SUB(&state.L, REG, true );
+        }
+        case 0x9E:      //SBB M
+        {
+            SUB(NULL, ADDR, true );
+        }
+        case 0x9F:      //SBB A
+        {
+           SUB(&state.A, REG, true );
+        }
+
+// ANA
+
+        case 0xA0:      //ANA B
+        {
+            AND(&state.B, REG);
+        }
+        case 0xA1:      //ANA C
+        {
+            AND(&state.C, REG);
+        }
+        case 0xA2:      //ANA D
+        {
+            AND(&state.D, REG);
+        }
+        case 0xA3:      //ANA E
+        {
+            AND(&state.E, REG);
+        }
+        case 0xA4:      //ANA H
+        {
+            AND(&state.H, REG);
+        }
+        case 0xA5:      //ANA L
+        {
+            AND(&state.L, REG);
+        }
+        case 0xA6:      //ANA M
+        {
+            AND(NULL, ADDR);
+        }
+        case 0xA7:      //ANA A
+        {
+            AND(&state.A, REG);
+        }
+// XOR   
+        case 0xA8:      //XOR B
+        {
+            XOR(&state.B, REG);
+        }
+        case 0xA9:      //XOR C
+        {
+            XOR(&state.C, REG);
+        }
+        case 0xAA:      //XOR D
+        {
+            XOR(&state.D, REG);
+        }
+        case 0xAB:      //XOR E
+        {
+            XOR(&state.E, REG);
+        }
+        case 0xAC:      //XOR H
+        {
+            XOR(&state.H, REG);
+        }
+        case 0xAD:      //XOR L
+        {
+            XOR(&state.L, REG);
+        }
+        case 0xAE:      //XOR M
+        {
+            XOR(NULL, ADDR);
+        }
+        case 0xAF:      //XOR A
+        {
+            XOR(&state.A, REG);
+        }
+   
+// ORR
+        case 0xB0:      //ORR B
+        {
+            ORR(&state.B, REG);
+        }
+        case 0xB1:      //ORR C
+        {
+            ORR(&state.C, REG);
+        }
+        case 0xB2:      //ORR D
+        {
+            ORR(&state.D, REG);
+        }
+        case 0xB3:      //ORR E
+        {
+            ORR(&state.E, REG);
+        }
+        case 0xB4:      //ORR H
+        {
+            ORR(&state.H, REG);
+        }
+        case 0xB5:      //ORR L
+        {
+            ORR(&state.L, REG);
+        }
+        case 0xB6:      //ORR M
+        {
+            ORR(NULL, ADDR);
+        }
+        case 0xB7:      //ORR A
+        {
+            ORR(&state.A, REG);
+        }
+    
+// CMP
+        case 0xB8:      //CMP B
+        {
+            CMP(&state.B, REG);
+        }
+        case 0xB9:      //CMP C
+        {
+            CMP(&state.C, REG);
+        }
+        case 0xBA:      //CMP D
+        {
+            CMP(&state.D, REG);
+        }
+        case 0xBB:      //CMP E
+        {
+            CMP(&state.E, REG);
+        }
+        case 0xBC:      //CMP H
+        {
+            CMP(&state.H, REG);
+        }
+        case 0xBD:      //CMP L
+        {
+            CMP(&state.L, REG);
+        }
+        case 0xBE:      //CMP M
+        {
+           CMP(NULL, ADDR);
+        }
+        case 0xBF:      //CMP A
+        {
+            CMP(&state.A, REG);
+        }
+        case 0xC0:
+        {
+            if ((state.cc.z) = 0){
+                ret();
+            }
+        } 
+    
     }
 }
