@@ -1,5 +1,6 @@
 #include "CPU.h"
 #include "helpers.h"
+#include <stdexcept>
 
 CPU::CPU(): memory(nullptr){
     reset_num_steps();
@@ -58,7 +59,9 @@ void CPU::call(uint16_t jmp_addr, uint16_t ret_addr ){
     write_memory(state.sp-1, ((ret_addr >> 8) & 0xFF));     // save upper part of address on stack -1
     write_memory(state.sp-2, (ret_addr & 0xFF));            // save lower part of address on stack -2
     state.sp -= 2;                                           //  decrement stack pointer to point to new bottom of stack (PUSH)
-    state.pc = jmp_addr;                                    // put 16 bit address into PC
+    state.pc = jmp_addr;      
+    
+                                  // put 16 bit address into PC
 }
 
 void CPU::ret (){
@@ -91,7 +94,6 @@ void CPU::MOV(uint8_t *register_choice_1, uint8_t *operand_2, AddressingMode mod
     }
 }
 void CPU::ADD(uint8_t *dest, AddressingMode mode, bool carrybool){
- // ADD to A in one of three modes, option for carry: encompasses ADD, ADC, ADI 
     uint16_t answer;
     switch (mode)
     {
@@ -116,7 +118,6 @@ void CPU::ADD(uint8_t *dest, AddressingMode mode, bool carrybool){
     
 }
 void CPU::SUB(uint8_t *dest, AddressingMode mode, bool carrybool){
- // ADD to A in one of three modes, option for carry: encompasses ADD, ADC, ADI 
     uint16_t answer;
     switch (mode)
     {
@@ -232,6 +233,11 @@ void CPU::CMP(uint8_t *dest, AddressingMode mode){
 
     state.cc.set_zsp(answer);    // set zsp
     state.cc.set_byte_cy(answer);  // set carry
+
+}
+void CPU::JMP(){
+    uint16_t address = read_opcode_word();
+    state.pc = address;
 
 }
 
@@ -962,137 +968,170 @@ void CPU::step(){
         case 0x7E:
         {
             MOV(&state.A, NULL, IMM);
+            break;
         }
 // ADD 
         case 0x80:      //ADD B
         {
             ADD(&state.B, REG, false );
+
         }
         case 0x81:      //ADD C
         {
             ADD(&state.C, REG, false );
+            break;
         }
         case 0x82:      //ADD D
         {
             ADD(&state.D, REG, false );
+            break;
         }
         case 0x83:      //ADD E
         {
             ADD(&state.E, REG, false );
+            break;
         }
         case 0x84:      //ADD H
         {
             ADD(&state.H, REG, false );
+            break;
         }
         case 0x85:      //ADD L
         {
             ADD(&state.L, REG, false );
+            break;
         }
         case 0x86:      //ADD M
         {
             ADD(NULL, ADDR, false );
+            break;
         }
         case 0x87:      //ADD A
         {
             ADD(&state.A, REG, false );
+            break;
         }
         case 0x88:      //ADC B
         {
             ADD(&state.B, REG, true );
+            break;
         }
         case 0x89:      //ADC C
         {
             ADD(&state.C, REG, true );
+            break;
         }
         case 0x8A:      //ADC D
         {
             ADD(&state.D, REG, true );
+            break;
         }
         case 0x8B:      //ADC E
         {
             ADD(&state.E, REG, true );
+            break;
         }
         case 0x8C:      //ADC H
         {
             ADD(&state.H, REG, true );
+            break;
         }
         case 0x8D:      //ADC L
         {
             ADD(&state.L, REG, true );
+            break;
         }
         case 0x8E:      //ADC M
         {
             ADD(NULL, ADDR, true );
+            break;
         }
         case 0x8F:      //ADC A
         {
             ADD(&state.A, REG, true );
+            break;
         }
 // SUB 
 
         case 0x90:      //SUB B
         {
             SUB(&state.B, REG, false );
+            break;
         }
         case 0x91:      //SUB C
         {
             SUB(&state.C, REG, false );
+            break;
         }
         case 0x92:      //SUB D
         {
             SUB(&state.D, REG, false );
+            break;
         }
         case 0x93:      //SUB E
         {
             SUB(&state.E, REG, false );
+            break;
         }
         case 0x94:      //SUB H
         {
             SUB(&state.H, REG, false );
+            break;
         }
         case 0x95:      //SUB L
         {
             SUB(&state.L, REG, false );
+            break;
         }
         case 0x96:      //SUB M
         {
             SUB(NULL, ADDR, false );
+            break;
         }
         case 0x97:      //SUB A
         {
             SUB(&state.A, REG, false );
+            break;
         }
         case 0x98:      //SBB B
         {
             SUB(&state.B, REG, true );
+            break;
         }
         case 0x99:      //SBB C
         {
             SUB(&state.C, REG, true );
+            break;
         }
         case 0x9A:      //SBB D
         {
             SUB(&state.D, REG, true );
+            break;
         }
         case 0x9B:      //SBB E
         {
             SUB(&state.E, REG, true );
+            break;
         }
         case 0x9C:      //SBB H
         {
             SUB(&state.H, REG, true );
+            break;
         }
         case 0x9D:      //SBB L
         {
             SUB(&state.L, REG, true );
+            break;
         }
         case 0x9E:      //SBB M
         {
             SUB(NULL, ADDR, true );
+            break;
         }
         case 0x9F:      //SBB A
         {
            SUB(&state.A, REG, true );
+           break;
         }
 
 // ANA
@@ -1100,142 +1139,551 @@ void CPU::step(){
         case 0xA0:      //ANA B
         {
             AND(&state.B, REG);
+            break;
         }
         case 0xA1:      //ANA C
         {
             AND(&state.C, REG);
+            break;
         }
         case 0xA2:      //ANA D
         {
             AND(&state.D, REG);
+            break;
         }
         case 0xA3:      //ANA E
         {
             AND(&state.E, REG);
+            break;
         }
         case 0xA4:      //ANA H
         {
             AND(&state.H, REG);
+            break;
         }
         case 0xA5:      //ANA L
         {
             AND(&state.L, REG);
+            break;
         }
         case 0xA6:      //ANA M
         {
             AND(NULL, ADDR);
+            break;
         }
         case 0xA7:      //ANA A
         {
             AND(&state.A, REG);
+            break;
         }
 // XOR   
         case 0xA8:      //XOR B
         {
             XOR(&state.B, REG);
+            break;
         }
         case 0xA9:      //XOR C
         {
             XOR(&state.C, REG);
+            break;
         }
         case 0xAA:      //XOR D
         {
             XOR(&state.D, REG);
+            break;
         }
         case 0xAB:      //XOR E
         {
             XOR(&state.E, REG);
+            break;
         }
         case 0xAC:      //XOR H
         {
             XOR(&state.H, REG);
+            break;
         }
         case 0xAD:      //XOR L
         {
             XOR(&state.L, REG);
+            break;
         }
         case 0xAE:      //XOR M
         {
             XOR(NULL, ADDR);
+            break;
         }
         case 0xAF:      //XOR A
         {
             XOR(&state.A, REG);
+            break;
         }
    
 // ORR
         case 0xB0:      //ORR B
         {
             ORR(&state.B, REG);
+            break;
         }
         case 0xB1:      //ORR C
         {
             ORR(&state.C, REG);
+            break;
         }
         case 0xB2:      //ORR D
         {
             ORR(&state.D, REG);
+            break;
         }
         case 0xB3:      //ORR E
         {
             ORR(&state.E, REG);
+            break;
         }
         case 0xB4:      //ORR H
         {
             ORR(&state.H, REG);
+            break;
         }
         case 0xB5:      //ORR L
         {
             ORR(&state.L, REG);
+            break;
         }
         case 0xB6:      //ORR M
         {
             ORR(NULL, ADDR);
+            break;
         }
         case 0xB7:      //ORR A
         {
             ORR(&state.A, REG);
+            break;
         }
     
 // CMP
         case 0xB8:      //CMP B
         {
             CMP(&state.B, REG);
+            break;
         }
         case 0xB9:      //CMP C
         {
             CMP(&state.C, REG);
+            break;
         }
         case 0xBA:      //CMP D
         {
             CMP(&state.D, REG);
+            break;
         }
         case 0xBB:      //CMP E
         {
             CMP(&state.E, REG);
+            break;
         }
         case 0xBC:      //CMP H
         {
             CMP(&state.H, REG);
+            break;
         }
         case 0xBD:      //CMP L
         {
             CMP(&state.L, REG);
+            break;
         }
         case 0xBE:      //CMP M
         {
            CMP(NULL, ADDR);
+           break;
         }
         case 0xBF:      //CMP A
         {
             CMP(&state.A, REG);
+            break;
         }
-        case 0xC0:
+        case 0xC0:      //RNZ
+        {
+            if ((state.cc.z) == 0){
+                ret();
+                opcode_size = 0 ; 
+            }
+            break;
+        } 
+
+        case 0xC1:      //POP B
+        {
+        state.C= read_memory(state.sp);    // pop lower part of register
+        state.B = read_memory(state.sp+1);  // pop upper part of registervoid POP(State* state, uint8_t *register_choice_1, uint8_t *register_choice_2){
+        state.sp += 2;
+        break;
+        }
+
+        case 0xC2:      //JNZ ADDR
+        {
+            if ((state.cc.z) == 0) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+            break;
+        }
+
+        case 0xC3:      //JMP addr
+        {
+            JMP();
+            opcode_size = 0;
+            break;
+        }
+
+        case 0xC4:      //CNZ
         {
             if ((state.cc.z) = 0){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+					opcode_size = 3;
+				}
+            break;
+        }
+
+        case 0xC5:      //PUSH B
+        {
+            write_memory(state.sp-1, state.B);              // save upper part of register on stack -1
+            write_memory(state.sp-2, state.C);              // save lower part of register on state -2
+            state.sp -= 2; 
+            break;
+        }
+
+        case 0xC6:      //ADI Byte
+        {
+            uint16_t answer = (uint16_t) state.A + (uint16_t) read_memory(state.pc + 1);
+            state.cc.set_zsp(answer);    // set zsp
+            state.cc.set_byte_cy(answer);  // set carry
+            state.A = (uint8_t) answer ;  // convert to 8 bit again
+            opcode_size= 2;
+            break;
+        }
+
+        case 0xC8:      //RZ 
+        {
+            if ((state.cc.z) == 1){
                 ret();
+                opcode_size = 0 ; 
+            }
+            break;
+        }
+
+        case 0xC9:      //RET
+        {
+            ret();
+            opcode_size = 0;
+        }
+
+        case 0xCA:      //JZ addr
+        {
+            if ((state.cc.z) == 1) {
+                JMP();
+                opcode_size = 0;
+            }
+            else {
+                opcode_size=3;
+            }
+            break;
+        }
+
+        case 0xCC:      //CZ
+        {
+            if ((state.cc.z) == 1){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+					opcode_size = 3;
+				}
+            break;
+        }
+
+        case 0xCD:      //CALL
+        {
+            
+            uint16_t address = read_opcode_word();
+            uint16_t return_address = state.pc + 3;
+            call(address, return_address);
+            opcode_size = 0;
+            break;
+        }
+
+        case 0xCE:      //ACI D8
+        {
+            uint16_t answer = (uint16_t) state.A + (uint16_t) read_memory(state.pc + 1)+ state.cc.cy;
+            state.cc.set_zsp(answer);    // set zsp
+            state.cc.set_byte_cy(answer);  // set carry
+            state.A = (uint8_t) answer ;  // convert to 8 bit again
+            opcode_size= 2;
+            break;
+        }
+
+        case 0xD0:      //RNC
+        {
+        if ((state.cc.cy) == 0) {
+            ret();
+            opcode_size= 0;
+            break;
+            }
+        }      
+
+        case 0xD1:      //POP D      
+        {
+        state.E= read_memory(state.sp);    // pop lower part of register
+        state.D = read_memory(state.sp+1);  // pop upper part of registervoid POP(State* state, uint8_t *register_choice_1, uint8_t *register_choice_2){
+        state.sp += 2;
+        break;
+        }
+
+        case 0xD2:      //JNC
+        {
+            if ((state.cc.cy) == 0) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+            break;
+        }
+
+        case 0xD3:      // OUT D8
+        {
+            throw std::runtime_error("Error: Not Implemented");
+        }
+
+        case 0xD4:      //CNC
+        {
+            if ((state.cc.cy) == 0){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+				opcode_size = 3;
+			}
+            break;
+        }
+
+        case 0xD5:      // PUSH D
+        {
+            write_memory(state.sp-1, state.D);              // save upper part of register on stack -1
+            write_memory(state.sp-2, state.E);              // save lower part of register on state -2
+            state.sp -= 2; 
+            break;
+        }
+
+        case 0xD6:      //SUI D8
+        {
+            uint16_t answer = (uint16_t) state.A - (uint16_t) read_memory(state.pc + 1);
+            state.cc.set_zsp(answer);    // set zsp
+            state.cc.set_byte_cy(answer);  // set carry
+            state.A = (uint8_t) answer ;  // convert to 8 bit again
+            opcode_size= 2;
+            break;
+        }
+
+        case 0XD8:      //RC
+        {
+        if ((state.cc.cy) == 1) {
+            ret();
+            opcode_size= 0;
+            break;
             }
         } 
-    
+
+        case 0xDA:      //JC   
+        {
+            if ((state.cc.cy) == 1) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+            break;
+        }
+
+        case 0xDB:      //IN D8
+        {
+            throw std::runtime_error("Error: Not Implemented");
+        }
+        
+        case 0xDC:      //CC
+        {
+            if ((state.cc.cy) == 1){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+				opcode_size = 3;
+			}
+            break;
+        }
+
+        case 0xDE:      //SBI D8
+        {
+            uint16_t answer = (uint16_t) state.A - (uint16_t) read_memory(state.pc + 1)- state.cc.cy;
+            state.cc.set_zsp(answer);    // set zsp
+            state.cc.set_byte_cy(answer);  // set carry
+            state.A = (uint8_t) answer ;  // convert to 8 bit again
+            opcode_size= 2;
+            break;
+        }
+
+        case 0xE0:      //RPO
+        {
+            if ((state.cc.p) == 0) {
+                ret();
+                opcode_size = 0;
+            }
+            break;
+        }
+
+        case 0xE1:      //POP
+        {
+            state.L= read_memory(state.sp);    // pop lower part of register
+            state.H = read_memory(state.sp+1);  // pop upper part of registervoid POP(State* state, uint8_t *register_choice_1, uint8_t *register_choice_2){
+            state.sp += 2;
+            break;
+        }
+
+        case 0xE2:      //JPO 
+        {
+        if ((state.cc.p) == 0) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+        }
+        
+
+        case 0xE3:      //XHTL
+        {
+            uint8_t l = state.L;
+            uint8_t h = state.H;
+            state.L = read_memory(state.sp);
+            state.H = read_memory(state.sp)+1;
+            write_memory(state.sp, l);
+            write_memory(state.sp+1,h);
+        }
+
+        case 0xE4:      //CPO
+        {
+            if ((state.cc.p) == 0){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+				opcode_size = 3;
+			}
+            break;
+        }
+
+        case 0xE5:      //PUSH H
+
+        {
+            write_memory(state.sp-1, state.H);              // save upper part of register on stack -1
+            write_memory(state.sp-2, state.L);              // save lower part of register on state -2
+            state.sp -= 2; 
+            break;
+        }
+
+        case 0xE6:      //ANI D8
+        {
+            uint16_t value = uint16_t(state.A) & uint16_t(read_memory(state.pc + 1));
+            state.cc.set_byte_cy(value);
+            state.cc.set_zsp(value);
+            state.A = (uint8_t) value ;
+            opcode_size = 2;
+            break;
+        }
+
+        case 0xE8:      //RPE
+        {
+            if (state.cc.p == 1) {
+				ret();
+				opcode_size = 0;
+				}
+            break;
+  
+        }
+
+        case 0xE9:      //PCHL
+    {
+        state.pc = state.read_reg(&state.H, &state.L);   // jumps to address in HL register
+        opcode_size = 0;
+        break;
     }
+
+    case 0xEA:      // JPE adr
+    {
+         if ((state.cc.p) == 1) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+            break;
+    }
+
+    case 0xEB:      //XCHG
+    {
+        uint8_t l = state.L;
+        uint8_t h = state.H;
+        state.L = read_memory(state.D);
+        state.H = read_memory(state.E);
+        write_memory(state.D, l);
+        write_memory(state.E, h);
+        break;
+    }
+
+    case 0xEC:      //CPE
+    {
+         if ((state.cc.p) == 1){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+					opcode_size = 3;
+				}
+            break;
+    }
+
+    case 0xEE:      //XRI D8
+    {
+            uint16_t value = uint16_t(state.A) ^ uint16_t(read_memory(state.pc + 1));
+            state.cc.set_byte_cy(value);
+            state.cc.set_zsp(value);
+            state.A = (uint8_t) value ;
+            opcode_size = 2;
+            break;
+    }
+
+        
 }
+
+}
+

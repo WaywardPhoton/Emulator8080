@@ -17,6 +17,10 @@ void ADD_A (State* state, uint8_t *dest, AddressingMode mode, bool carrybool){
     case REG:  answer = (uint16_t) state->A + (uint16_t) *dest + (carrybool* state->cc.cy); 
         break;
 
+    case IMM:  answer = (uint16_t) state->A + (uint16_t) state->memory[state->pc + 1] + (carrybool* state->cc.cy);
+        break;
+
+
     case ADDR:  answer = (uint16_t) state->A + state->memory[state->read_reg(&state-> H, &state-> L)]+ (carrybool* state->cc.cy);
         break;    
     }
@@ -124,7 +128,6 @@ void DCR (State* state, uint8_t *register_choice, RegisterChoice choice){
 
     state->cc.set_zsp(answer);  // set only zsp and not carry bit
 
-}
 
 void DAD(State* state, uint8_t *regA, uint8_t *regB ){
 
@@ -609,8 +612,7 @@ void RAL(State* state){ //rotate accumulator left through carry
 
 void CMP_A(State* state, unsigned char *instruction, uint8_t *dest, AddressingMode mode){
                                     
-    // XOR with to A in one of three modes, carry is zeroes in all cases.
-    // encompasses XRA, XRI and XRA M (address) 
+
 
     uint16_t answer;
     switch (mode)

@@ -37,5 +37,6 @@ private:
     void ORR(uint8_t *dest, AddressingMode mode);
     void XOR(uint8_t *dest, AddressingMode mode);
     void CMP(uint8_t *dest, AddressingMode mode);
+    void JMP();
 
 };
