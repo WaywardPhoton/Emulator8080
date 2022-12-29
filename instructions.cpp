@@ -1,5 +1,5 @@
 #include "instructions.h"
-#include "Memory.h"
+
 
 
 // Create global memory variable
@@ -16,10 +16,10 @@ void ADD_A (State* state, uint8_t *dest, AddressingMode mode, bool carrybool){
     {
     case REG:  answer = (uint16_t) state->A + (uint16_t) *dest + (carrybool* state->cc.cy); 
         break;
-
-    case IMM:  answer = (uint16_t) state->A + (uint16_t) state->memory[state->pc + 1] + (carrybool* state->cc.cy);
+    
+    case IMM:  answer = (uint16_t) state->A + (uint16_t) state->memory[state->pc + 1]+ (carrybool* state->cc.cy);
+        state->pc++;
         break;
-
 
     case ADDR:  answer = (uint16_t) state->A + state->memory[state->read_reg(&state-> H, &state-> L)]+ (carrybool* state->cc.cy);
         break;    
@@ -128,6 +128,7 @@ void DCR (State* state, uint8_t *register_choice, RegisterChoice choice){
 
     state->cc.set_zsp(answer);  // set only zsp and not carry bit
 
+}
 
 void DAD(State* state, uint8_t *regA, uint8_t *regB ){
 
@@ -147,7 +148,10 @@ void DAD_SP(State* state){
     state->L = state->write_reg_B((uint16_t*) &answer);
     state->cc.set_word_cy(answer);
 
+    state->cc.set_word_cy(answer);
 }
+
+
 
 // ---------------------------------------------
 // ARITHMETIC GROUP
@@ -612,7 +616,8 @@ void RAL(State* state){ //rotate accumulator left through carry
 
 void CMP_A(State* state, unsigned char *instruction, uint8_t *dest, AddressingMode mode){
                                     
-
+    // XOR with to A in one of three modes, carry is zeroes in all cases.
+    // encompasses XRA, XRI and XRA M (address) 
 
     uint16_t answer;
     switch (mode)
@@ -719,7 +724,7 @@ void MOV(State* state, uint8_t *register_choice_1, uint8_t *operand_2, Addressin
         state->pc++;
 
     case ADDR:  uint16_t address = state->read_reg(&state-> H, &state-> L);
-			    *register_choice_1 = state->memory[address] ;  // state-> C, for example. 
+			    state->memory[address]= *register_choice_1;  // state-> C, for example. 
         break;
     }
 
@@ -791,9 +796,8 @@ void SHLD(State* state){
 void LHLD(State* state){
     uint8_t hi = state->memory[state->pc + 2];
     uint8_t low = state->memory[state->pc + 1];
-    uint16_t addr = (hi << 8) | low;
-    state->H= state->memory[addr+1];
-    state->L= state->memory[addr];
+    state->H= state->memory[hi];
+    state->L= state->memory[low];
     state->pc += 2;
 
 

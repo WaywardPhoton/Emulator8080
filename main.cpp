@@ -1,5 +1,5 @@
 
-#include "CPU.h"  // this doesn't work
+#include "CPU.h"  
 #include <iostream>
 
 using namespace std; 
@@ -54,12 +54,42 @@ int main(int argc, char* argv[])
 // ADD_A(&theState, &theState.B, REG, true);
 // printf("%x\n", theState.A);
 
-//Memory memory; 
+
+
+CPU emulator;
+Memory memory; 
+memory.write(0x00, 0x01);
+memory.write(0x01, 0x03);
+memory.write(0x02, 0x04);
+
+
 // Memory::Config config;
-// config.isRomWriteable = true;
+// config.sizeRam = 2000;
+// config.sizeRom = 2000;
+// config.isRamMirrored = true;
 // memory.configure(config);
-// printf("%d\n", config.isRomWriteable);
-//Memory::Config theConfig = memory.get_config();
-//printf("%d\n", theConfig.isRamMirrored);
+
+uint16_t pc = 0x00;
+emulator.init(&memory, pc);
+
+
+// Memory::Config theConfig = memory.get_config();
+// printf("%d\n", theConfig.isRamMirrored);
+
+emulator.state.B=1;
+emulator.state.C=1;
+emulator.step();
+
+
+State state = emulator.get_state();
+
+
+printf("%x\n", state.B );
+printf("%x\n", state.C );
+
+
+// uint8_t res = emulator.read_memory(state.B + state.C);
+// printf("%x\n", res);
+
 return 0; 
 };   

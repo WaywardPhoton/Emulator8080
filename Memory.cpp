@@ -11,10 +11,7 @@ Memory::Memory() {
 		isRomWriteable(false),
 		isRamMirrored(false)
 	{
-
 	}
-
-
 
 	void Memory::configure(Config& inConfig) {
 		config = inConfig;
@@ -56,4 +53,4 @@ Memory::Memory() {
 
 		memory[address] = value;		
 	}
-    
+

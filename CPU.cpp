@@ -1,6 +1,6 @@
 #include "CPU.h"
 #include "helpers.h"
-#include <stdexcept>
+
 
 CPU::CPU(): memory(nullptr){
     reset_num_steps();
@@ -25,6 +25,7 @@ int& CPU::get_num_steps(){
 State& CPU::get_state(){
     return state;
 }
+
     // generate interrupt
 void CPU::interrupt (int interrupt_index){
 
@@ -190,7 +191,7 @@ void CPU::ORR(uint8_t *dest, AddressingMode mode){
 void CPU::XOR(uint8_t *dest, AddressingMode mode){
                                     
     // XOR with to A in one of three modes, carry is zeroes in all cases.
-    // encompasses XRA, XRI and XRA M (address) 
+    // encompasses XRA and XRA M (address) 
 
     uint8_t answer;
     switch (mode)
@@ -1461,7 +1462,7 @@ void CPU::step(){
 
         case 0xD3:      // OUT D8
         {
-            throw std::runtime_error("Error: Not Implemented");
+           // NOT IMPLEMENTED
         }
 
         case 0xD4:      //CNC
@@ -1519,7 +1520,7 @@ void CPU::step(){
 
         case 0xDB:      //IN D8
         {
-            throw std::runtime_error("Error: Not Implemented");
+            //NOT IMPLEMENTED
         }
         
         case 0xDC:      //CC
@@ -1682,8 +1683,135 @@ void CPU::step(){
             break;
     }
 
-        
+    case 0xF0:      //RP
+    {
+            if ((state.cc.s) == 0) {
+                ret();
+                opcode_size = 0;
+            }
+        break;
+    }
+
+    case 0xF1:      //POP PSW
+   
+    {
+        uint8_t psw = read_memory(state.sp);
+        state.cc = *reinterpret_cast<ConditionCodes*>(&psw);
+        state.A = read_memory(state.sp + 1);
+        state.sp += 2;
+        break;
+    }
+
+    case 0xF2:      //JP 
+    {
+        if ((state.cc.p) == 1) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+            break;
+    }
+
+    case 0xF3:      //DI
+    {
+        state.InterruptEnabled = false; 
+        break;
+    }
+
+    case 0xF4:      //CP
+    {
+            if ((state.cc.p) == 1){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+				opcode_size = 3;
+			}
+            break;
+    }
+
+    case 0xF5:      //PUSH PSW
+    {
+        write_memory(state.sp-2,*reinterpret_cast<uint8_t*>(&state.cc));
+        write_memory(state.sp-1,state.A);
+        state.sp -= 2;
+        break;
+    }
+
+    case 0xF6:      //ORI D8
+        {
+            uint16_t value = uint16_t(state.A) | uint16_t(read_memory(state.pc + 1));
+            state.cc.set_byte_cy(value);
+            state.cc.set_zsp(value);
+            state.A = (uint8_t) value ;
+            opcode_size = 2;
+            break;
+    }
+
+    case 0xF8:      //RM
+    {
+        if ((state.cc.s) == 1) {
+            ret();
+            opcode_size = 0;
+        }
+        break;
+    }
+
+    case 0xF9:      //SPHL
+    {
+    state.sp = state.read_reg(&state.H, &state.L);
+    break;
+    }
+
+    case 0xFA:      //JM adr
+    {
+         if ((state.cc.s) == 1) {
+                JMP();
+                opcode_size = 0;
+            }
+            else{
+                opcode_size=3;
+            }
+            break;
+    }
+
+    case 0xFB:      //EI
+    { 
+        state.InterruptEnabled = true;   
+        break;
+    }
+
+    case 0xFC:      //CM
+    {
+            if ((state.cc.s) == 1){
+                uint16_t address = read_opcode_word();
+				uint16_t return_address = state.pc + 3;
+				call(address, return_address);
+				opcode_size = 0;
+            }
+            else {
+				opcode_size = 3;
+			}
+            break;
+    }
+
+    case 0xFE:      //CPI D8
+    {
+            uint16_t value = uint16_t(state.A) - uint16_t(read_memory(state.pc + 1));
+            state.cc.set_byte_cy(value);
+            state.cc.set_zsp(value);
+            opcode_size = 2;
+            break;
+    }
+
 }
+
+
+state.pc += opcode_size;
 
 }
 
