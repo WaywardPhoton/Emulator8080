@@ -248,11 +248,10 @@ void CPU::JMP(){
 
 void CPU::step(FILE* fp){
     num_steps+=1;
-    int opcode_size = 1;
+    int opcode_size = 1; 
     uint8_t opcode = read_memory(state.pc);
     fprintf(fp, "%04x %s", opcode, " "); 
-    fprintf(fp, "A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  s: %01x  p: %01x  z: %01x  cy: %01x  %s", 
-    state.A,state.B,state.C,state.D,state.E,state.H,state.L,state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
+    fprintf(fp, "A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  s: %01x  p: %01x  z: %01x  cy: %01x  %s", state.A,state.B,state.C,state.D,state.E,state.H,state.L,state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
 
 
     switch(opcode)
@@ -1744,7 +1743,7 @@ void CPU::step(FILE* fp){
 
     case 0xF4:      //CP
     {
-        if ((state.cc.p) == 1){
+        if ((state.cc.s) == 0){
             uint16_t address = read_opcode_word();
             uint16_t return_address = state.pc + 3;
             call(address, return_address);

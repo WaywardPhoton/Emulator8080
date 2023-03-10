@@ -57,18 +57,19 @@ int main(int argc, char* argv[])
 // ADD_A(&theState, &theState.B, REG, true);
 // printf("%x\n", theState.A);
 const char* kRomFilename = "./TST8080.COM";
+const uint16_t kRomLoadAddress = 0x100;
 
 CPU emulator;
 Memory memory; 
 
 Memory::Config config;
 config.sizeRam = 2000;
-config.sizeRom = uint16_t(getFileSize(kRomFilename));
+config.sizeRom = kRomLoadAddress + uint16_t(getFileSize(kRomFilename));
 config.isRamMirrored = true;
 memory.configure(config);
 
-memory.load(kRomFilename);
-uint16_t pc = 0x00;
+memory.load(kRomFilename, kRomLoadAddress);
+uint16_t pc = kRomLoadAddress;
 
 
 emulator.init(&memory, pc);

@@ -19,7 +19,7 @@ Memory::Memory() {
 		config = inConfig;
     }
 
-	bool Memory::load(const char* kRomFilename){
+	bool Memory::load(const char* kRomFilename, const uint16_t offset_address){
 		uint16_t filesize = (uint16_t) getFileSize(kRomFilename);
 		ifstream file;
 		file.open(kRomFilename, ios::in | ios::binary);
@@ -32,7 +32,9 @@ Memory::Memory() {
 		file.close();
 
 		for(uint16_t i = 0; i < filesize; i++){
-			memory[i] = data[i]; 
+			size_t writeAddress = size_t(offset_address) + i;
+			memory[writeAddress] = data[i];
+
 	
 		}
 
