@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include <cstddef>
+#include <stdio.h>
 #include "Memory.h"
 #include "State.h"
 class CPU
 {
 public:
-    CPU();
+    CPU(); //constructor for the class 
 
     // initialize emulator
     void init (Memory* memory, uint16_t pc_start);
@@ -14,16 +15,15 @@ public:
     // get number of steps in ROM simulated
     int& get_num_steps();
     // get the current state struct
-    State& get_state();   // experiment with making this const later? 
+    State get_state();   // experiment with making this const later? 
     // advance through ROM
-    void step();
+    void step(FILE* fp);
     // generate interrupt
     void interrupt (int interrupt_index);
     uint8_t read_memory(uint16_t address) const ;
 
 //private:
     uint16_t read_opcode_word() const ;
-
     void write_memory(uint16_t address ,uint8_t value);
     void call(uint16_t jmp_addr, uint16_t ret_addr);
     void ret ();

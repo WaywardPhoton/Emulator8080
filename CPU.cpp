@@ -12,6 +12,9 @@ void CPU::init(Memory* input_memory, uint16_t pc_start){
     memory = input_memory;
     state.pc = pc_start;
     reset_num_steps();
+
+
+
 }
 
 void CPU::reset_num_steps(){
@@ -22,7 +25,7 @@ int& CPU::get_num_steps(){
     return num_steps;
 }
 
-State& CPU::get_state(){
+State CPU::get_state(){
     return state;
 }
 
@@ -202,13 +205,14 @@ void CPU::XOR(uint8_t *dest, AddressingMode mode){
         break;
     }
     
-        case ADDR:
-        {
-            uint16_t addr = state.read_reg(&state.H, &state.L);
-            answer = state.A ^ read_memory(addr);
+    case ADDR:
+    {
+        uint16_t addr = state.read_reg(&state.H, &state.L);
+        answer = state.A ^ read_memory(addr);
         
         break;   
-        } 
+    }
+
     }
 
     state.cc.set_zsp(answer);    // set zsp
@@ -242,10 +246,15 @@ void CPU::JMP(){
 
 }
 
-void CPU::step(){
+void CPU::step(FILE* fp){
     num_steps+=1;
     int opcode_size = 1;
     uint8_t opcode = read_memory(state.pc);
+    fprintf(fp, "%04x %s", opcode, " "); 
+    fprintf(fp, "A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  s: %01x  p: %01x  z: %01x  cy: %01x  %s", 
+    state.A,state.B,state.C,state.D,state.E,state.H,state.L,state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
+
+
     switch(opcode)
     {
         case 0x00: break;       //NOP                     
@@ -430,6 +439,7 @@ void CPU::step(){
         {
             uint16_t address = state.read_reg(&state.D, &state.E);
             state.A = read_memory(address); 
+            break;
         }
 
         case 0x1b:      //DCX D`
@@ -522,8 +532,8 @@ void CPU::step(){
         case 0x27:      //DAA
         {
             if ((state.A & 0x0f) > 9) {
-					state.A += 6;
-				}
+				state.A += 6;
+			}
 
             if ((1 == state.cc.cy) || ((state.A & 0xf0) > 0x90)) {
                 state.A += 0x60;
@@ -541,6 +551,7 @@ void CPU::step(){
             state.H = state.write_reg_A((uint16_t*) &answer);
             state.L = state.write_reg_B((uint16_t*) &answer);
             state.cc.set_word_cy(answer);
+            break;
         }
 
         case 0x2a:      //LHLD ADR
@@ -586,6 +597,7 @@ void CPU::step(){
         case 0x2f:      //CMA
         {
             state.A = ~state.A; 
+            break;
         }
 
         case 0x31:      // :LXI SP, D16
@@ -601,6 +613,7 @@ void CPU::step(){
             uint16_t addr = read_opcode_word();
             write_memory(addr, state.A);
             opcode_size = 3;
+            break;
         }
 
         case 0x33:      //INX SP
@@ -641,6 +654,7 @@ void CPU::step(){
         case 0x37:      //STC
         {
             state.cc.cy = 1;
+            break;
         }
 
         case 0x39:      //DAD SP
@@ -650,6 +664,7 @@ void CPU::step(){
             state.H = state.write_reg_A((uint16_t*) &answer);
             state.L = state.write_reg_B((uint16_t*) &answer);
             state.cc.set_word_cy(answer);
+            break;
         }
 
         case 0x3a:      //LDA ADDR
@@ -657,11 +672,13 @@ void CPU::step(){
             uint16_t addr = read_opcode_word();
             state.A = read_memory(addr);
             opcode_size = 3;
+            break;
         }
 
         case 0x3b:      //DCX SP
         {
             state.sp--;
+            break;
         }
 
         case 0x3c:      //INR A 
@@ -688,6 +705,7 @@ void CPU::step(){
         case 0x3f:      //CMC
         {
             state.cc.cy = !state.cc.cy;
+            break;
         }
         // MOV
 
@@ -705,7 +723,7 @@ void CPU::step(){
         {
             MOV(&state.B, &state.E, REG);
             break;
-                    }
+        }
         case 0x44:      //MOV B,H
         {
             MOV(&state.B, &state.H, REG);
@@ -735,7 +753,7 @@ void CPU::step(){
         {
             MOV(&state.C, &state.D, REG);
             break;
-                    }
+        }
         case 0x4B:      //MOV C,E
         {
             MOV(&state.C, &state.E, REG);
@@ -770,12 +788,13 @@ void CPU::step(){
         {
             MOV(&state.D, &state.C, REG);
             break;
-                    }
+        }
         case 0x53:      //MOV D,E
         {
             MOV(&state.D, &state.E, REG);
             break;
         }
+    
         case 0x54:      //MOV D,H
         {
             MOV(&state.D, &state.H, REG);
@@ -798,13 +817,13 @@ void CPU::step(){
         }
         case 0x58:      //MOV E,B
         {
-            break;
             MOV(&state.E, &state.B, REG);
+            break;
         }
         case 0x59:      //MOV E,D
         {
-            break;
             MOV(&state.E, &state.C, REG);
+            break;
         }
         case 0x5A:      //MOV E,E
         {
@@ -875,7 +894,7 @@ void CPU::step(){
         {
             MOV(&state.L, &state.C, REG);
             break;
-                    }
+        }
         case 0x6A:      //MOV L,D
         {
             MOV(&state.L, &state.D, REG);
@@ -945,7 +964,7 @@ void CPU::step(){
         {
             MOV(&state.A, &state.C, REG);
             break;
-                    }
+        }
         case 0x7A:      //MOV A,D
         {
             MOV(&state.A, &state.D, REG);
@@ -975,6 +994,7 @@ void CPU::step(){
         case 0x80:      //ADD B
         {
             ADD(&state.B, REG, false );
+            break;
 
         }
         case 0x81:      //ADD C
@@ -1383,6 +1403,7 @@ void CPU::step(){
         {
             ret();
             opcode_size = 0;
+            break;
         }
 
         case 0xCA:      //JZ addr
@@ -1573,6 +1594,7 @@ void CPU::step(){
             else{
                 opcode_size=3;
             }
+            break;
         }
         
 
@@ -1584,6 +1606,7 @@ void CPU::step(){
             state.H = read_memory(state.sp)+1;
             write_memory(state.sp, l);
             write_memory(state.sp+1,h);
+            break;
         }
 
         case 0xE4:      //CPO
@@ -1685,15 +1708,14 @@ void CPU::step(){
 
     case 0xF0:      //RP
     {
-            if ((state.cc.s) == 0) {
-                ret();
-                opcode_size = 0;
-            }
+        if ((state.cc.s) == 0) {
+            ret();
+            opcode_size = 0;
+        }
         break;
     }
 
     case 0xF1:      //POP PSW
-   
     {
         uint8_t psw = read_memory(state.sp);
         state.cc = *reinterpret_cast<ConditionCodes*>(&psw);
@@ -1707,11 +1729,11 @@ void CPU::step(){
         if ((state.cc.p) == 1) {
                 JMP();
                 opcode_size = 0;
-            }
-            else{
+        }
+            else {
                 opcode_size=3;
             }
-            break;
+        break;
     }
 
     case 0xF3:      //DI
@@ -1722,16 +1744,16 @@ void CPU::step(){
 
     case 0xF4:      //CP
     {
-            if ((state.cc.p) == 1){
-                uint16_t address = read_opcode_word();
-				uint16_t return_address = state.pc + 3;
-				call(address, return_address);
-				opcode_size = 0;
-            }
-            else {
-				opcode_size = 3;
-			}
-            break;
+        if ((state.cc.p) == 1){
+            uint16_t address = read_opcode_word();
+            uint16_t return_address = state.pc + 3;
+            call(address, return_address);
+            opcode_size = 0;
+        }
+        else {
+            opcode_size = 3;
+        }
+        break;
     }
 
     case 0xF5:      //PUSH PSW
@@ -1776,7 +1798,7 @@ void CPU::step(){
             else{
                 opcode_size=3;
             }
-            break;
+        break;
     }
 
     case 0xFB:      //EI
@@ -1787,16 +1809,16 @@ void CPU::step(){
 
     case 0xFC:      //CM
     {
-            if ((state.cc.s) == 1){
-                uint16_t address = read_opcode_word();
-				uint16_t return_address = state.pc + 3;
-				call(address, return_address);
-				opcode_size = 0;
-            }
-            else {
-				opcode_size = 3;
-			}
-            break;
+        if ((state.cc.s) == 1){
+            uint16_t address = read_opcode_word();
+            uint16_t return_address = state.pc + 3;
+            call(address, return_address);
+            opcode_size = 0;
+        }
+        else {
+            opcode_size = 3;
+        }
+        break;
     }
 
     case 0xFE:      //CPI D8
@@ -1807,6 +1829,7 @@ void CPU::step(){
             opcode_size = 2;
             break;
     }
+
 
 }
 

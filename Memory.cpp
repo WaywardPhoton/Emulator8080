@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include "Memory.h"
 
+using namespace std;
+
 Memory::Memory() {
 	}
 
@@ -16,6 +18,28 @@ Memory::Memory() {
 	void Memory::configure(Config& inConfig) {
 		config = inConfig;
     }
+
+	bool Memory::load(const char* kRomFilename){
+		uint16_t filesize = (uint16_t) getFileSize(kRomFilename);
+		ifstream file;
+		file.open(kRomFilename, ios::in | ios::binary);
+		if(!file.is_open()){
+			return false;
+		}
+		uint8_t data [filesize];
+		
+		file.read((char *)data, filesize);
+		file.close();
+
+		for(uint16_t i = 0; i < filesize; i++){
+			memory[i] = data[i]; 
+	
+		}
+
+		return true;
+
+	}
+
 
 	struct Memory::Config Memory::get_config(){
 		return config ;

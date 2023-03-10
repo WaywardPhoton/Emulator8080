@@ -24,7 +24,6 @@ struct State{
     uint8_t L;
     uint16_t pc; // program counter 
     uint16_t sp; //stack pointer
-    uint8_t memory[0xFFFF]; 
     uint16_t value;
 
     ConditionCodes cc ;

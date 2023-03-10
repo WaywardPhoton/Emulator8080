@@ -1,16 +1,19 @@
 
 #include "CPU.h"  
+#include <algorithm>
+#include <array>
 #include <iostream>
-
-using namespace std; 
+#include <string_view>
+#include <typeinfo>
+#include<functional>
+#include <stdio.h>
 
 int main(int argc, char* argv[])
 {
 
+
 // State state; 
 // State *ptr_state = &state ; 
-
-
 // printf("%d\n", ptr_state->H);
 
 // ptr_state->H = (uint8_t) 4;
@@ -53,43 +56,49 @@ int main(int argc, char* argv[])
 // printf("%x\n", (uint8_t) (0xFF + 0xFA +1 ));
 // ADD_A(&theState, &theState.B, REG, true);
 // printf("%x\n", theState.A);
-
-
+const char* kRomFilename = "./TST8080.COM";
 
 CPU emulator;
 Memory memory; 
-memory.write(0x00, 0x01);
-memory.write(0x01, 0x03);
-memory.write(0x02, 0x04);
 
+Memory::Config config;
+config.sizeRam = 2000;
+config.sizeRom = uint16_t(getFileSize(kRomFilename));
+config.isRamMirrored = true;
+memory.configure(config);
 
-// Memory::Config config;
-// config.sizeRam = 2000;
-// config.sizeRom = 2000;
-// config.isRamMirrored = true;
-// memory.configure(config);
-
+memory.load(kRomFilename);
 uint16_t pc = 0x00;
+
+
 emulator.init(&memory, pc);
 
+FILE *fp= fopen( "emulator_out.txt" , "wb" );
+
+int i =0;
+while (i <30){
+    emulator.step(fp);
+    i ++;
+
+}
+
+fclose(fp);
 
 // Memory::Config theConfig = memory.get_config();
 // printf("%d\n", theConfig.isRamMirrored);
-
-emulator.state.B=1;
-emulator.state.C=1;
-emulator.step();
-
-
-State state = emulator.get_state();
-
-
-printf("%x\n", state.B );
-printf("%x\n", state.C );
-
-
+// State s = emulator.get_state(); 
 // uint8_t res = emulator.read_memory(state.B + state.C);
 // printf("%x\n", res);
 
 return 0; 
 };   
+
+
+
+
+// typedef std::function<uint8_t(uint8_t port)> CallbackIn;
+// void setCallbackIn(CallbackIn callback);
+
+// Callbackin first_ptr = &function;
+// setCallbackIn(&function)
+

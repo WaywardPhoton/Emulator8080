@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "helpers.h"
 class Memory
 {
 public:
@@ -14,9 +15,9 @@ public:
 		};
 
     uint8_t memory[0xFFFF]; 
-  
     struct Memory::Config get_config();
     void configure(Config& config);
+    bool load(const char* kRomFilename); 
     uint16_t translate(uint16_t address);
 
 	void write(uint16_t address, uint8_t value);
