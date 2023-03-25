@@ -9,6 +9,7 @@ ConditionCodes::ConditionCodes() {
 
 void ConditionCodes::reset() {
 		all = 0;
+        padding_2 = 1;
 	}
 
 void ConditionCodes::set_zsp(uint16_t value) {

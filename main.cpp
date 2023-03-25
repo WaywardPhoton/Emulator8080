@@ -71,13 +71,14 @@ memory.configure(config);
 memory.load(kRomFilename, kRomLoadAddress);
 uint16_t pc = kRomLoadAddress;
 
+memory.write(0x05, 0xC9);
 
 emulator.init(&memory, pc);
 
 FILE *fp= fopen( "emulator_out.txt" , "wb" );
 
 int i =0;
-while (i <30){
+while (i <100){
     emulator.step(fp);
     i ++;
 

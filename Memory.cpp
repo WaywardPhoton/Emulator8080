@@ -10,7 +10,7 @@ Memory::Memory() {
 
 	Memory::Config::Config() : 
 		sizeRom(0), sizeRam(0),
-		isRomWriteable(false),
+		isRomWriteable(true),
 		isRamMirrored(false)
 	{
 	}

@@ -251,7 +251,7 @@ void CPU::step(FILE* fp){
     int opcode_size = 1; 
     uint8_t opcode = read_memory(state.pc);
     fprintf(fp, "%04x %s", opcode, " "); 
-    fprintf(fp, "A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  s: %01x  p: %01x  z: %01x  cy: %01x  %s", state.A,state.B,state.C,state.D,state.E,state.H,state.L,state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
+    fprintf(fp, "PC: %04x AF: %04x  BC: %04x  DE: %04x  HL: %04x  SP: %04x  s: %01x  p: %01x  z: %01x  cy: %01x %s", state.pc, (state.A <<8) |state.cc.all, state.read_reg(&state.B,&state.C), state.read_reg(&state.D,&state.E), state.read_reg(&state.H,&state.L), state.sp, state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
 
 
     switch(opcode)
@@ -1359,11 +1359,23 @@ void CPU::step(FILE* fp){
 
         case 0xC4:      //CNZ
         {
-            if ((state.cc.z) = 0){
+            if ((state.cc.z) == 0){
                 uint16_t address = read_opcode_word();
 				uint16_t return_address = state.pc + 3;
 				call(address, return_address);
-				opcode_size = 0;
+				opcode_size = 0;			{
+				if (state.cc.z == 0) {
+					uint16_t address = readOpcodeDataWord();
+					uint16_t returnAddress = state.pc + 3;
+					call(address, returnAddress);
+					opcodeSize = 0;
+				}
+				else {
+					opcodeSize = 3;
+				}
+
+				break;
+			}
             }
             else {
 					opcode_size = 3;
@@ -1674,10 +1686,10 @@ void CPU::step(FILE* fp){
     {
         uint8_t l = state.L;
         uint8_t h = state.H;
-        state.L = read_memory(state.D);
-        state.H = read_memory(state.E);
-        write_memory(state.D, l);
-        write_memory(state.E, h);
+        state.L = state.E;
+        state.H = state.D;
+        state.D = h;
+        state.E =l;
         break;
     }
 
