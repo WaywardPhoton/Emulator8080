@@ -78,7 +78,7 @@ emulator.init(&memory, pc);
 FILE *fp= fopen( "emulator_out.txt" , "wb" );
 
 int i =0;
-while (i <100){
+while (i <600){
     emulator.step(fp);
     i ++;
 

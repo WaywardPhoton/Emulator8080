@@ -7,6 +7,8 @@ struct ConditionCodes{
     void set_zsp(uint16_t value);
     void set_byte_cy(uint16_t value) ; 
     void set_word_cy(uint32_t value) ; 
+    void set_aux_carry(uint8_t a, uint8_t b, uint8_t c);
+    void set_aux_carry(uint8_t a);
 
     union{ // top down is lsb to msb
     struct{    

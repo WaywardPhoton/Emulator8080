@@ -30,5 +30,15 @@ void ConditionCodes::set_word_cy(uint32_t value) {
         
     }
 
+void ConditionCodes::set_aux_carry(uint8_t a, uint8_t b, uint8_t c)
+        {
+            ac = ((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
+        }
+
+void ConditionCodes::set_aux_carry(uint8_t a)
+        {
+            ac = ((a & 0xf) == 0xf);
+        }
+
 
 

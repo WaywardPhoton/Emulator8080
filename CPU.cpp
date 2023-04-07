@@ -251,7 +251,7 @@ void CPU::step(FILE* fp){
     int opcode_size = 1; 
     uint8_t opcode = read_memory(state.pc);
     fprintf(fp, "%04x %s", opcode, " "); 
-    fprintf(fp, "PC: %04x AF: %04x  BC: %04x  DE: %04x  HL: %04x  SP: %04x  s: %01x  p: %01x  z: %01x  cy: %01x %s", state.pc, (state.A <<8) |state.cc.all, state.read_reg(&state.B,&state.C), state.read_reg(&state.D,&state.E), state.read_reg(&state.H,&state.L), state.sp, state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
+    fprintf(fp, "PC: %04x AF: %04x BC: %04x DE: %04x HL: %04x SP: %04x s: %01x p: %01x z: %01x cy: %01x %s", state.pc, (state.A <<8) |state.cc.all, state.read_reg(&state.B,&state.C), state.read_reg(&state.D,&state.E), state.read_reg(&state.H,&state.L), state.sp, state.cc.s,state.cc.p, state.cc.z, state.cc.cy, "\n"); 
 
 
     switch(opcode)
@@ -284,6 +284,7 @@ void CPU::step(FILE* fp){
 
         case 0x04:      //INR B
         {
+            state.cc.set_aux_carry(state.B);
             uint8_t answer = ++state.B;    
             state.cc.set_zsp(answer);
             break;
@@ -291,6 +292,7 @@ void CPU::step(FILE* fp){
 
         case 0x05:      //DCR B 
         {
+            state.cc.set_aux_carry(~state.B);
             uint8_t answer = --state.B;   
             state.cc.set_zsp(answer);
             break;
@@ -341,12 +343,14 @@ void CPU::step(FILE* fp){
 
         case 0x0c:      //INR C
         {
+            state.cc.set_aux_carry(state.C);
             uint8_t answer = ++state.C;   
             state.cc.set_zsp(answer);
             break;
         }
         case 0x0d:      //DCR C
         {
+            state.cc.set_aux_carry(~state.C);
             uint8_t answer = --state.C;   
             state.cc.set_zsp(answer);
             break;
@@ -395,6 +399,7 @@ void CPU::step(FILE* fp){
 
         case 0x14:      //INR D
         {
+            state.cc.set_aux_carry(state.D);
             uint8_t answer = ++state.D;   
             state.cc.set_zsp(answer);
             break;
@@ -402,6 +407,7 @@ void CPU::step(FILE* fp){
 
         case 0x15:      //DCR D
         {
+            state.cc.set_aux_carry(~state.D);
             uint8_t answer = --state.D;   
             state.cc.set_zsp(answer);
             break;
@@ -453,6 +459,7 @@ void CPU::step(FILE* fp){
         
         case 0x1c:      //INR E 
         {
+            state.cc.set_aux_carry(state.E);
             uint8_t answer = ++state.E;   
             state.cc.set_zsp(answer);
             break;
@@ -460,6 +467,7 @@ void CPU::step(FILE* fp){
 
         case 0x1d:      //DCR E
         {
+            state.cc.set_aux_carry(~state.E);
             uint8_t answer = --state.E;   
             state.cc.set_zsp(answer);
             break;
@@ -509,6 +517,7 @@ void CPU::step(FILE* fp){
 
         case 0x24:      //INR H 
         {
+            state.cc.set_aux_carry(state.H);
             uint8_t answer = ++state.H;   
             state.cc.set_zsp(answer);
             break;
@@ -516,6 +525,7 @@ void CPU::step(FILE* fp){
 
         case 0x25:      //DCR H
         {
+            state.cc.set_aux_carry(~state.H);
             uint8_t answer = --state.H;   
             state.cc.set_zsp(answer);
             break;
@@ -535,7 +545,7 @@ void CPU::step(FILE* fp){
 			}
 
             if ((1 == state.cc.cy) || ((state.A & 0xf0) > 0x90)) {
-                state.A += 0x60;
+                state.A += 0x66;
                 state.cc.cy = 1;
                 state.cc.set_zsp(state.A);
             }
@@ -574,6 +584,7 @@ void CPU::step(FILE* fp){
 
         case 0x2c:      //INR L
         {
+            state.cc.set_aux_carry(state.L);
             uint8_t answer = ++state.L;   
             state.cc.set_zsp(answer);
             break;
@@ -581,6 +592,7 @@ void CPU::step(FILE* fp){
 
         case 0x2d:      //DCR L
         {
+            state.cc.set_aux_carry(~state.L);
             uint8_t answer = --state.L;   
             state.cc.set_zsp(answer);
             break;
@@ -624,7 +636,9 @@ void CPU::step(FILE* fp){
 
         case 0x34:      // INR M
         {
+            
             uint16_t address = state.read_reg(&state.H, &state.L); 
+            state.cc.set_aux_carry(state.L); // if L is 0xF then we will have a carry 
             uint16_t answer= (read_memory(address)) + 1 ;
             state.cc.set_zsp(answer);
             write_memory(address, uint8_t(answer & 0xff));
@@ -634,6 +648,7 @@ void CPU::step(FILE* fp){
         case 0x35:      // DCR M
         {
             uint16_t address = state.read_reg(&state.H, &state.L); 
+            state.cc.set_aux_carry(~state.L);
             uint16_t answer= (read_memory(address)) - 1;
             state.cc.set_zsp(answer);
             write_memory(address, uint8_t(answer & 0xff));
@@ -682,6 +697,7 @@ void CPU::step(FILE* fp){
 
         case 0x3c:      //INR A 
         {
+            state.cc.set_aux_carry(state.A);
             uint8_t answer = ++state.A;        
             state.cc.set_zsp(answer);
             break;
@@ -1363,20 +1379,7 @@ void CPU::step(FILE* fp){
                 uint16_t address = read_opcode_word();
 				uint16_t return_address = state.pc + 3;
 				call(address, return_address);
-				opcode_size = 0;			{
-				if (state.cc.z == 0) {
-					uint16_t address = readOpcodeDataWord();
-					uint16_t returnAddress = state.pc + 3;
-					call(address, returnAddress);
-					opcodeSize = 0;
-				}
-				else {
-					opcodeSize = 3;
-				}
-
-				break;
-			}
-            }
+				opcode_size = 0;	}		
             else {
 					opcode_size = 3;
 				}
@@ -1468,8 +1471,9 @@ void CPU::step(FILE* fp){
         if ((state.cc.cy) == 0) {
             ret();
             opcode_size= 0;
-            break;
+
             }
+            break;
         }      
 
         case 0xD1:      //POP D      
@@ -1534,8 +1538,9 @@ void CPU::step(FILE* fp){
         if ((state.cc.cy) == 1) {
             ret();
             opcode_size= 0;
-            break;
             }
+
+            break;
         } 
 
         case 0xDA:      //JC   
